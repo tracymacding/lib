@@ -2,6 +2,7 @@
  * copyright @DingKai
  */
 #include <stdio.h>
+#include <stdbool.h>
 
 #ifndef _LIB_LIST_H
 #define _LIB_LIST_H
@@ -44,16 +45,23 @@ typedef struct list_head
         iter != (head); iter = n, n = n->next)
 
 
+/*
+ * bool is defined as _Bool in C99, included in <stdbool.h>
+ */
+static inline bool list_empty(struct list_head *l)
+{
+    return (l->next == l);
+}
+
 
 /*
  * get length of given list
- * @: given list
- * TODO:which kind data type we should return?
- * 
+ * @l: given list
+ * uint32_t is defined in <stdint.h>
  */
-static inline int list_len(struct list_head *l)
+static inline uint32_t list_len(struct list_head *l)
 {
-    int    length = 0;
+    uint32_t         length = 0;
     struct list_head *tmp = NULL;
 
     list_for_each(tmp, l) {
@@ -63,13 +71,11 @@ static inline int list_len(struct list_head *l)
 }
 
 
-
 static inline void list_init(struct list_head *l)
 {
     l->prev = l;
     l->next = l;
 }
-
 
 
 /**
@@ -86,7 +92,6 @@ static inline void __list_add(struct list_head *new,
 }
 
 
-
 /**
  * list_add: add an new entry
  * @new: new entry to be added
@@ -100,7 +105,6 @@ static inline void list_add(list_head_t* new, list_head_t* head)
 }
 
 
-
 /*
  * delete a list entry by making the prev/next
  * point to each other
@@ -111,7 +115,6 @@ static inline void __list_del(struct list_head *prev,
     prev->next = next;
     next->prev = prev;
 }
-
 
 
 /**
@@ -128,6 +131,5 @@ static inline void list_del(list_head_t* entry)
     entry->prev = entry;
     entry->next = entry;
 }
-
 
 #endif

@@ -78,6 +78,11 @@ int main()
         printf("we expected list len:10, but got: %d\n", list_len(&test_list));
         return -1;
     }
+
+    if(list_empty(&test_list)) {
+        printf("we expected list not empty, but not\n");
+        return -1;
+    }
     
     /* 
      * macro list_for_each test
