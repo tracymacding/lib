@@ -27,17 +27,44 @@ typedef struct list_head
     ({const typeof(((type *)0)->member)* __mptr = (ptr); \
      (type*)((char *)__mptr - offsetof(type, member));})
 
+
 /*
  * list_for_each: iterate over a list
  * @iter: the struct list_head* to use as a loop cursor
  * @head: the head of your list
+ * Note:  it's not safe, if you delete an entry from list in list_for_each
+ *        the next access will be undefined, in this case, you'd better use 
+ *        list_for_each_safe
  */
 #define list_for_each(iter, head) \
     for(iter = (head)->next; iter != (head); iter = iter->next)
 
+#define list_for_each_safe(iter, n, head) \
+    for(iter = (head)->next, n = iter->next; \
+        iter != (head); iter = n, n = n->next)
 
 
-void list_init(struct list_head* l)
+
+/*
+ * get length of given list
+ * @: given list
+ * TODO:which kind data type we should return?
+ * 
+ */
+static inline int list_len(struct list_head *l)
+{
+    int    length = 0;
+    struct list_head *tmp = NULL;
+
+    list_for_each(tmp, l) {
+        length++;
+    }
+    return length;
+}
+
+
+
+static inline void list_init(struct list_head *l)
 {
     l->prev = l;
     l->next = l;
@@ -67,7 +94,7 @@ static inline void __list_add(struct list_head *new,
  *
  * Insert a new entry after the specified head
  */
-void list_add(list_head_t* new, list_head_t* head)
+static inline void list_add(list_head_t* new, list_head_t* head)
 {
     __list_add(new, head, head->next);
 }
@@ -91,15 +118,16 @@ static inline void __list_del(struct list_head *prev,
  * list_del: delete an entry
  * @entry: entry to be deleted
  */
-void list_del(list_head_t* entry)
+static inline void list_del(list_head_t* entry)
 {
     __list_del(entry->prev, entry->next);
-    /* what we should make
-     * in kernel, it makes 
-     * LIST_POISON1 & LIST_POISON2
+    /* what we should make, NULL or @entry itself?
+     * in kernel, it makes LIST_POISON1 & LIST_POISON2
      * But why ?
      */
     entry->prev = entry;
     entry->next = entry;
 }
+
+
 #endif
